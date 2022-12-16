@@ -1,122 +1,74 @@
 # cartooning-image
 the main aim of this project is to detect objects or convert real life images into cartoon or cartoons into real images. 
-#IMPORTING
-import sys
-import os
-import cv2
-import easygui
-import numpy as np
-import matplotlib.pyplot as plt
-import imageio
 
 
-# In[2]:
+Nowadays many different apps are available for the cartoonification of an image. The main aim of this article is not to simply build another tool for users to turn their favorite images into cartoon drawings but to draw their attention towards the coding side of it and how easily one can make their own program after learning the basics.
+Here, we make use of OpenCV to convert an image into it’s cartoon form.
+
+OpenCV -
+OpenCV (Open Source Computer Vision Library) is an open-source computer vision and machine learning software library. OpenCV was built to provide a common infrastructure for computer vision applications and to accelerate the use of machine perception in commercial products. It is used to perform different operations on images that transform them using different techniques.
+Step 1 — Installing OpenCV
+To install OpenCV:
+
+Step 2 — Importing necessary libraries
+Import the following libraries in your notebook -
+
+OpenCV
+easygui
+numpy
+matplotlib.pyplot
+imageio
+Step 3 — Reading an image
+Now for input, we need to select an image. Image can be selected from either your system or can be uploaded directly from the internet. Here, I’ve uploaded one from my system. For this, I’ve made use of easygui library.
 
 
-#Reading the image
-ImagePath=easygui.fileopenbox()
-img1=cv2.imread(ImagePath)
-if img1 is None:
-        print("Can not find any image. Choose appropriate file")
-        sys.exit()
-img1=cv2.cvtColor(img1,cv2.COLOR_BGR2RGB)
+The image is stored in img. In case no file is selected or the uploaded file format is not selected then a message as “Can not find any image. Choose appropriate file” will be displayed.
+
+The image is by default read in BGR color palette. We need to convert it in RGB format.
 
 
-# In[3]:
+Changing color palette
+Next, we have to convert the image to grayscale -
 
 
-#Converting the color space from RGB to Grayscale
-img1g=cv2.cvtColor(img1,cv2.COLOR_RGB2GRAY)
+Converting the image to grayscale
+Step 4 — Median Blurring
+3 types of blurring are available namely,
+
+Gaussian Blur
+Median Blur
+Bilateral Blur
+Here, we perform median blurring on the image. The central element of the image is replaced by the median of all the pixels in the kernel area. This operation processes the edges while removing the noise.
 
 
-# In[4]:
+Median Blurring
+Step 5 — Edge Mask
+The next step is to create the edge mask of the image. To do so, we make use of the adaptive threshold function.
+
+Adaptive thresholding is the method where the threshold value is calculated for smaller regions and therefore, there will be different threshold values for different regions.
 
 
-#Displaying all the images
-plt.imshow(img1)
-plt.axis("off")
-plt.title("Image 1 - original")
-plt.show()
+Creating edge mask
+Step 6 — Removing Noise
+We need to get rid of the unwanted details of the image or the “noise”. In imaging, noise emerges as an artifact in the image that appears as a grainy structure covering the image.
 
-plt.imshow(img1g,cmap='gray')
-plt.axis("off")
-plt.title("Image 1 - grayscale")
-plt.show()
+To do so, we perform bilateral blurring.
 
 
-# In[5]:
+Removing Noise
+Step 7 — Eroding and Dilating
+Erosion —
+
+Erodes away the boundaries of the foreground object
+Used to diminish the features of an image.
+Dilation —
+
+Increases the object area
+Used to accentuate features
+
+Eroding and Dilating an image
+Step 8 — Stylization of an image
+Now, we perform stylization on the image.
 
 
-#Median Blurring
-img1b=cv2.medianBlur(img1g,3)
-plt.imshow(img1b,cmap='gray')
-plt.axis("off")
-plt.title("AFTER MEDIAN BLURRING")
-plt.show()
-
-
-# In[6]:
-
-
-#Creating edge mask
-edges=cv2.adaptiveThreshold(img1b,255,cv2.ADAPTIVE_THRESH_MEAN_C,cv2.THRESH_BINARY,3,3)
-plt.imshow(edges,cmap='gray')
-plt.axis("off")
-plt.title("Edge Mask")
-plt.show()
-
-
-# In[7]:
-
-
-#Removing noise
-img1bb=cv2.bilateralFilter(img1b, 15, 75, 75)
-plt.imshow(img1bb,cmap='gray')
-plt.axis("off")
-plt.title("AFTER BILATERAL BLURRING")
-plt.show()
-
-
-# In[8]:
-
-
-#Eroding and Dilating
-kernel=np.ones((1,1),np.uint8)
-img1e=cv2.erode(img1bb,kernel,iterations=3)
-img1d=cv2.dilate(img1e,kernel,iterations=3)
-plt.imshow(img1d,cmap='gray')
-plt.axis("off")
-plt.title("AFTER ERODING AND DILATING")
-plt.show()
-
-
-# # COLOR QUANTIZATION
-
-# Color Quantization is implemented by using clustering alogrithms. There are 3 different types of clustering - 
-# 1.Exclusive Clustering
-# 2.Overlapping Clustering
-# 3.Hierarchial Clustering
-# 
-# Here we use exclusive clustering. K-MEANS technique is used.
-
-# In[9]:
-
-
-#Clustering - (K-MEANS)
-imgf=np.float32(img1).reshape(-1,3)
-criteria=(cv2.TERM_CRITERIA_EPS+cv2.TERM_CRITERIA_MAX_ITER,20,1.0)
-compactness,label,center=cv2.kmeans(imgf,5,None,criteria,10,cv2.KMEANS_RANDOM_CENTERS)
-center=np.uint8(center)
-final_img=center[label.flatten()]
-final_img=final_img.reshape(img1.shape)
-
-
-# In[10]:
-
-
-final=cv2.bitwise_and(final_img,final_img,mask=edges)
-plt.imshow(final,cmap='gray')
-plt.axis("off")
-plt.title("FINAL")
-plt.show()
-
+The stylization of the image
